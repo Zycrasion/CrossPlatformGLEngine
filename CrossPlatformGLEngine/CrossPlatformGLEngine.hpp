@@ -3,11 +3,8 @@
 
 #pragma once
 #include "External.hpp"
+#include "Utilities.hpp"
 #include "Window.hpp"
-
-using namespace std;
-
-Window Initialise(int width, int height, const char* title);
-
-int CheckShaderSuccess(unsigned int shader, bool exit);
-int CheckShaderProgramSuccess(unsigned int shaderProgram, bool exit);
+#include "Shader.hpp"
+#include "Node.hpp"
+#include "Component.hpp"
