@@ -1,14 +1,18 @@
 #include <CrossPlatformGLEngine.hpp>
+#include <thread>
+#include <cmath>
+
 using namespace std;
-void draw(GLFWwindow* window);
+void draw();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 unsigned int vertexShader;
 const char* vertexShaderSource = "#version 460 core\n"
 "layout (location = 0) in vec3 aPos;\n"
+"uniform float t;\n"
 "void main()\n"
 "{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"   gl_Position = vec4(aPos.x + t, aPos.y, aPos.z, 1.0);\n"
 "}\0";
 
 unsigned int fragmentShader;
@@ -33,6 +37,8 @@ Window* window;
 int frames = 0;
 
 double lastTime = 0;
+
+int width, height;
 
 int main()
 {
@@ -72,52 +78,64 @@ int main()
 
 	glClearColor(0.5, 0.25, 0.25, 1);
 
+
+	glfwGetWindowSize(*window, &width, &height);
+
+	glfwMakeContextCurrent(NULL);
+	thread draw_thread(draw);
+	draw_thread.detach();
+
 	while (!glfwWindowShouldClose(*window))
 	{
-		draw(*window);
+		glfwPollEvents();
 	}
 
 	glfwTerminate();
 	return 0;
 }
 
-void draw(GLFWwindow* glfw_window)
+
+void draw()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	glfwSwapBuffers(*window);
-
-	glfwPollEvents();
-
-	double currentTime = glfwGetTime();
-	frames++;
-
-	if (currentTime - lastTime >= 1.0) // Check if last update was 1 second ago
+	glfwMakeContextCurrent(*window);
+	while (!glfwWindowShouldClose(*window))
 	{
-		char title[256];
+		glViewport(0, 0, width, height);
 
-		title[255] = '\0';
+		glClear(GL_COLOR_BUFFER_BIT);
 
-		snprintf(
-			title,
-			255,
-			"hi %i",
-			frames
-		);
+		glBindVertexArray(VAO);
+		glUniform1f(0, sin((float)glfwGetTime()));
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
-		window->SetTitle(title);
+		glfwSwapBuffers(*window);
 
-		frames = 0;
-		lastTime = currentTime;
+		double currentTime = glfwGetTime();
+		frames++;
+
+		if (currentTime - lastTime >= 1.0) // Check if last update was 1 second ago
+		{
+			char title[256];
+
+			title[255] = '\0';
+
+			snprintf(
+				title,
+				255,
+				"hi %i",
+				frames
+			);
+
+			window->SetTitle(title);
+
+			frames = 0;
+			lastTime = currentTime;
+		}
 	}
 }
 
-void framebuffer_size_callback(GLFWwindow* glfw_window, int width, int height)
+void framebuffer_size_callback(GLFWwindow* glfw_window, int w, int h)
 {
-	Window::DefaultResizeCallback(glfw_window, width, height);
-
-	draw(glfw_window);
+	width = w;
+	height = h;
 }
