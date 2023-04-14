@@ -16,9 +16,10 @@ const char* vertexShaderSource = "#version 460 core\n"
 
 const char* fragmentShaderSource = "#version 460 core\n"
 "out vec4 FragColour;\n"
+"uniform vec3 colour;"
 "void main()\n"
 "{\n"
-"	FragColour = vec4(0.5, 0.5, 0.25, 1.0);\n"
+"	FragColour = vec4(colour, 1.0);\n"
 "}\0";
 
 unsigned int shaderProgram;
@@ -38,23 +39,20 @@ double lastTime = 0;
 
 int width, height;
 
+Shader* shader;
+
+Mesh* triangle;
+
 int main()
 {
 	window = &Initialise(720, 480, "hi");
 	window->SetResizeCallback(framebuffer_size_callback);
 
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	triangle = &Mesh(vertices, 3);
 
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	shader = &Shader(vertexShaderSource, fragmentShaderSource);
+	shader->use();
 
-	Shader shader(vertexShaderSource, fragmentShaderSource);
-	shader.use();
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
 
 	glClearColor(0.5, 0.25, 0.25, 1);
 
@@ -84,9 +82,12 @@ void draw()
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUniform1f(0, sin((float)glfwGetTime()));
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		shader->use();
+		float t = sin((float)glfwGetTime());
+		glUniform1f(glGetUniformLocation(shader->program, "t"), t);
+		t = (t + 1.f) / 2.f;
+		glUniform3f(glGetUniformLocation(shader->program, "colour"), t,t,t);
+		triangle->update(0.f);
 
 		glfwSwapBuffers(*window);
 
