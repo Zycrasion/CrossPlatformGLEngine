@@ -12,7 +12,7 @@ public:
 	unsigned int VBO;
 	unsigned int VAO;
 
-	Mesh(float* vertices, int length);
+	Mesh(float* vertices, int length, bool uv_coordinates);
 	void init();
 	void update(float deltaTime);
 };

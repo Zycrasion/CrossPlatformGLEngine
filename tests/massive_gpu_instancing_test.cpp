@@ -103,10 +103,25 @@ int main()
 	{
 		glfwPollEvents();
 
-		drawn_instances = (sin(glfwGetTime()) + 1.0) * instances/2;
+		// drawn_instances = (sin(glfwGetTime()) + 1.0) * instances/2;
+		float x = sin(glfwGetTime());
+
+		int index = 0;
+		for (float x = 0; x < sq; x++)
+		{
+			for (float y = 0; y < sq; y++)
+			{
+				positions[index] += x;
+				positions[index + 1] += 0;
+				index += 2;
+			}
+		}
 	}
 
-	draw_thread.join();
+	if (draw_thread.joinable())
+	{
+		draw_thread.join();
+	}
 
 	glfwTerminate();
 	return 0;
@@ -114,9 +129,9 @@ int main()
 
 void draw()
 {
-	glfwMakeContextCurrent(*window);
 	while (!glfwWindowShouldClose(*window))
 	{
+		glfwMakeContextCurrent(*window);
 		glViewport(0,0,width,height);
 
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -130,22 +145,22 @@ void draw()
 		double currentTime = glfwGetTime();
 		frames++;
 
-		if (currentTime - lastTime >= 1.0) // Check if last update was 1 second ago
+		char title[256];
+
+		title[255] = '\0';
+
+		snprintf(
+			title,
+			255,
+			"fps: %2.f triangles: %i",
+			((float)frames) / (currentTime - lastTime),
+			drawn_instances
+		);
+
+		window->SetTitle(title);
+
+		if (currentTime - lastTime >= 1.0)
 		{
-			char title[256];
-
-			title[255] = '\0';
-
-			snprintf(
-				title,
-				255,
-				"fps: %i triangles: %i",
-				frames,
-				drawn_instances
-			);
-
-			window->SetTitle(title);
-
 			frames = 0;
 			lastTime = currentTime;
 		}
