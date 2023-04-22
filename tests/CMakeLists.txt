@@ -6,3 +6,4 @@ endif (UNIX)
 
 add_executable(triangle_test "triangle_test.cpp")
 add_executable(triangle_test_ecs "triangle_test_ecs.cpp")
+add_executable(multi_window_test "multi_window_test.cpp")

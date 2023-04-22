@@ -1,36 +1,42 @@
 #include <CrossPlatformGLEngine.hpp>
 #include <thread>
 #include <cmath>
+#include <string>
 
 using namespace std;
 void draw();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
+
 const char* vertexShaderSource = "#version 460 core\n"
 "layout (location = 0) in vec3 aPos;\n"
-"uniform float t;\n"
+"out vec3 vCol;\n"
+"uniform vec2 offsets[5000];\n"
 "void main()\n"
 "{\n"
-"   gl_Position = vec4(aPos.x + t, aPos.y, aPos.z, 1.0);\n"
+"	vec2 offset = offsets[gl_InstanceID];\n"
+"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0) + vec4(offset, 0.0, 0.0);\n"
+"	vCol = gl_Position.xyz;\n"
 "}\0";
 
 const char* fragmentShaderSource = "#version 460 core\n"
 "out vec4 FragColour;\n"
-"uniform vec3 colour;"
+"in vec3 vCol;"
 "void main()\n"
 "{\n"
-"	FragColour = vec4(colour, 1.0);\n"
+"	FragColour = vec4(vCol, 1.0);\n"
 "}\0";
+
+const int instances = 5000;
 
 unsigned int shaderProgram;
 
 float vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f,
-	 0.0f,  0.5f, 0.0f
+	-0.01f, -0.01f, 0.0f,
+	 0.01f, -0.01f, 0.0f,
+	 0.0f,  0.01f, 0.0f
 };
-unsigned int VBO;
-unsigned int VAO;
+
 
 Window* window;
 int frames = 0;
@@ -45,33 +51,55 @@ Mesh* triangle;
 
 int main()
 {
-	window = &Initialise(720, 480, "hi");
-	window->SetResizeCallback(framebuffer_size_callback);
+	Window win = Initialise(720, 480, "hi");
+	win.SetResizeCallback(framebuffer_size_callback);
+
+	window = &win;
 
 	triangle = &Mesh(vertices, 3);
 
 	shader = &Shader(vertexShaderSource, fragmentShaderSource);
 	shader->use();
 
+	int index = 0;
+	float sq = floor(sqrtf(instances));
+	float sq_hlf = sq / 2.f;
+	float positions[2];
+	for (float x = 0; x < sq; x++)
+	{
+		for (float y = 0; y < sq; y++)
+		{
+			positions[0] = (x + 0.5f - sq_hlf) / sq_hlf;
+			positions[1] = (y + 0.5f - sq_hlf) / sq_hlf;
+			int loc = glGetUniformLocation((GLuint)*shader, ("offsets[" + std::to_string(index) + "]").c_str());
+
+			glUniform2fv(loc, 2, positions);
+			index++;
+		}
+	}
+
+	for (int i = 0; i < 100; i++)
+	{
+
+	}
 
 	glClearColor(0.5, 0.25, 0.25, 1);
-
 
 	glfwGetWindowSize(*window, &width, &height);
 
 	glfwMakeContextCurrent(NULL);
 	thread draw_thread(draw);
-	draw_thread.detach();
 
 	while (!glfwWindowShouldClose(*window))
 	{
 		glfwPollEvents();
 	}
 
+	draw_thread.join();
+
 	glfwTerminate();
 	return 0;
 }
-
 
 void draw()
 {
@@ -81,13 +109,18 @@ void draw()
 		glViewport(0, 0, width, height);
 
 		glClear(GL_COLOR_BUFFER_BIT);
+		int numOfInstances = instances;
+		float time = (float)glfwGetTime();
+
+		int TLoc = glGetUniformLocation(shader->program, "t");
+		int JLoc = glGetUniformLocation(shader->program, "j");
+		int ColLoc = glGetUniformLocation(shader->program, "colour");
+
+		glBindVertexArray(triangle->VAO);
+		glDrawArraysInstanced(GL_TRIANGLES, 0, 3, numOfInstances);
 
 		shader->use();
-		float t = sin((float)glfwGetTime());
-		glUniform1f(glGetUniformLocation(shader->program, "t"), t);
-		t = (t + 1.f) / 2.f;
-		glUniform3f(glGetUniformLocation(shader->program, "colour"), t,t,t);
-		triangle->update(0.f);
+		
 
 		glfwSwapBuffers(*window);
 
@@ -103,8 +136,9 @@ void draw()
 			snprintf(
 				title,
 				255,
-				"hi %i",
-				frames
+				"fps: %i triangles: %i",
+				frames,
+				numOfInstances
 			);
 
 			window->SetTitle(title);
