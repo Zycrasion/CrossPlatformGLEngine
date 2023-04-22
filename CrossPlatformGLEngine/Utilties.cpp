@@ -43,7 +43,7 @@ int CheckShaderProgramSuccess(unsigned int shader, bool exit_on_fail = true)
 	if (!success)
 	{
 		glGetProgramInfoLog(shader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER Compile failed InfoLog:\n" << infoLog << "\n";
+		std::cout << "ERROR::SHADER::PROGRAM Compile failed InfoLog:\n" << infoLog << "\n";
 
 		return -1;
 		if (exit_on_fail)

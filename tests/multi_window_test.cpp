@@ -3,8 +3,7 @@
 #include <cmath>
 
 using namespace std;
-void draw_first();
-void draw_second();
+void draw();
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -38,7 +37,7 @@ int frames = 0;
 
 double lastTime = 0;
 
-int width, height;
+bool running = true;
 
 int main()
 {
@@ -67,34 +66,18 @@ int main()
 
 	glClearColor(0.5, 0.25, 0.25, 1);
 
-	glfwGetWindowSize(*window, &width, &height);
 
 	glfwMakeContextCurrent(NULL);
-	thread draw_thread(draw_first);
+	thread draw_thread(draw);
 	draw_thread.detach();
 
-	thread draw_thread2(draw_second);
-	draw_thread2.detach();
 
-
-	while ((!glfwWindowShouldClose(*window) && !glfwWindowShouldClose(*secondWindow)))
+	while (running)
 	{
-		glfwMakeContextCurrent(win);
-		glfwPollEvents();
-
-		glfwMakeContextCurrent(win2);
 		glfwPollEvents();
 	}
 
-	if (draw_thread.joinable())
-	{
-		draw_thread.join();
-	}
-	if (draw_thread2.joinable())
-	{
-		draw_thread2.join();
-	}
-		
+	draw_thread.join();
 
 	glfwTerminate();
 	return 0;
@@ -134,24 +117,19 @@ void populate_window(Window *win)
 
 }
 
-void draw_first()
+void draw()
 {
 	while (!glfwWindowShouldClose(*window))
 	{
 		populate_window(window);
-	}
-}
-
-void draw_second()
-{
-	while (!glfwWindowShouldClose(*secondWindow))
-	{
 		populate_window(secondWindow);
 	}
+	glfwWindowShouldClose(*secondWindow);
+	running = false;
 }
 
 void framebuffer_size_callback(GLFWwindow *glfw_window, int w, int h)
 {
-	width = w;
-	height = h;
+	glfwMakeContextCurrent(glfw_window);
+	glViewport(0,0,w,h);
 }
