@@ -42,10 +42,15 @@ int width, height;
 
 int main()
 {
-	window = &Initialise(720, 480, "hi");
-	window->SetResizeCallback(framebuffer_size_callback);
+	Window win = Initialise(720, 480, "hi");
+	win.SetResizeCallback(framebuffer_size_callback);
 
-	secondWindow = &Initialise(480, 720, "hi2");
+	window = &win;
+
+	Window win2 = Initialise(480, 720, "hi2");
+	win2.SetResizable(false);
+	
+	secondWindow = &win2;
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -72,8 +77,12 @@ int main()
 	draw_thread2.detach();
 
 
-	while (!(glfwWindowShouldClose(*window) || glfwWindowShouldClose(*secondWindow)))
+	while ((!glfwWindowShouldClose(*window) && !glfwWindowShouldClose(*secondWindow)))
 	{
+		glfwMakeContextCurrent(win);
+		glfwPollEvents();
+
+		glfwMakeContextCurrent(win2);
 		glfwPollEvents();
 	}
 

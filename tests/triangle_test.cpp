@@ -40,8 +40,10 @@ int width, height;
 
 int main()
 {
-	window = &Initialise(720, 480, "hi");
-	window->SetResizeCallback(framebuffer_size_callback);
+	Window win = Initialise(720, 480, "hi");
+	win.SetResizeCallback(framebuffer_size_callback);
+
+	window = &win;
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
