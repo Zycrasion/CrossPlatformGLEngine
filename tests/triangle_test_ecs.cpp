@@ -56,7 +56,8 @@ int main()
 
 	window = &win;
 
-	triangle = &Mesh(vertices, 3);
+	Mesh m = Mesh(vertices, 3, false);
+	triangle = &m;
 
 	shader = &Shader(vertexShaderSource, fragmentShaderSource);
 	shader->use();

@@ -45,7 +45,7 @@ double lastTime = 0;
 int width, height;
 
 Shader* shader;
-
+	
 Mesh* triangle;
 
 unsigned int InstanceVBO;
@@ -60,7 +60,7 @@ int main()
 
 	window = &win;
 
-	Mesh tri = Mesh(vertices, 3);
+	Mesh tri = Mesh(vertices, 3, false);
 	triangle = &tri;
 
 	shader = &Shader(vertexShaderSource, fragmentShaderSource);
@@ -105,17 +105,6 @@ int main()
 
 		// drawn_instances = (sin(glfwGetTime()) + 1.0) * instances/2;
 		float x = sin(glfwGetTime());
-
-		int index = 0;
-		for (float x = 0; x < sq; x++)
-		{
-			for (float y = 0; y < sq; y++)
-			{
-				positions[index] += x;
-				positions[index + 1] += 0;
-				index += 2;
-			}
-		}
 	}
 
 	if (draw_thread.joinable())
@@ -129,9 +118,9 @@ int main()
 
 void draw()
 {
+	glfwMakeContextCurrent(*window);
 	while (!glfwWindowShouldClose(*window))
 	{
-		glfwMakeContextCurrent(*window);
 		glViewport(0,0,width,height);
 
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -145,26 +134,29 @@ void draw()
 		double currentTime = glfwGetTime();
 		frames++;
 
-		char title[256];
 
-		title[255] = '\0';
-
-		snprintf(
-			title,
-			255,
-			"fps: %2.f triangles: %i",
-			((float)frames) / (currentTime - lastTime),
-			drawn_instances
-		);
-
-		window->SetTitle(title);
 
 		if (currentTime - lastTime >= 1.0)
 		{
+
+			char title[256];
+
+			title[255] = '\0';
+
+			snprintf(
+				title,
+				255,
+				"fps: %2.f triangles: %i",
+				((float)frames) / (currentTime - lastTime),
+				drawn_instances
+			);
+
+			window->SetTitle(title);
 			frames = 0;
 			lastTime = currentTime;
 		}
 	}
+	cout << "Finished";
 }
 
 void framebuffer_size_callback(GLFWwindow* glfw_window, int w, int h)

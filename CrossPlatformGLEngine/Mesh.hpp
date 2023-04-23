@@ -6,9 +6,9 @@ class Mesh : public Component
 {
 private:
 	float* vertices;
-	int length;
 
 public:
+	int length;
 	unsigned int VBO;
 	unsigned int VAO;
 
