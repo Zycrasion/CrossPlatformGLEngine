@@ -79,6 +79,7 @@ int main()
 	win.SetResizeCallback(framebuffer_size_callback);
 	cout << glGetString(GL_VERSION) << endl << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 	window = &win;
+	window->SetUnclosable(); // its an abomination
 
 	Texture container = Texture("res/container.jpg");
 	container.Bind(0);
@@ -109,10 +110,22 @@ int main()
 	thread draw_thread(draw);
 	draw_thread.detach();
 
-	while (!glfwWindowShouldClose(*window))
+	int desktop_width, desktop_height;
+	int desktop_x, desktop_y;
+	int monitor_count;
+
+	glfwGetMonitorWorkarea(glfwGetMonitors(&monitor_count)[0], &desktop_x, &desktop_y, &desktop_width, &desktop_height);
+
+	desktop_width -= width;
+	desktop_height -= height;
+
+
+	while (!window->GetShouldClose())
 	{
-		
 		glfwPollEvents();
+		float t = glfwGetTime();
+		t *= 10;
+		glfwSetWindowPos(*window, (sin(t) * desktop_width/2) + desktop_width/2, (cos(t) * desktop_height / 2) + desktop_height / 2);
 	}
 
 	if (draw_thread.joinable())
@@ -130,8 +143,9 @@ float mix = 0.1f;
 
 void draw()
 {
-	while (!glfwWindowShouldClose(*window))
+	while (!window->GetShouldClose())
 	{
+	
 		glfwMakeContextCurrent(*window);
 		glViewport(0, 0, width, height);
 

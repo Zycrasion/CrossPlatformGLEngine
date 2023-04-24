@@ -1,8 +1,11 @@
 #include "Window.hpp"
+#include "../lib/glfw/src/internal.h"
+
 
 Window::Window(int width, int height, const char* title)
 {
 	this->handle = glfwCreateWindow(width, height, title, NULL, NULL);
+	this->unclosable = false;
 
 	if (!this->handle)
 	{
@@ -22,6 +25,21 @@ void Window::DefaultResizeCallback(GLFWwindow* window, int width, int height)
 void Window::SetResizeCallback(GLFWwindowsizefun fun)
 {
 	glfwSetWindowSizeCallback(this->handle, fun);
+}
+
+void Window::SetUnclosable()
+{
+	this->unclosable = true;
+	((_GLFWwindow*)this->handle)->callbacks.close = NULL;
+}
+
+bool Window::GetShouldClose()
+{
+	if (this->unclosable)
+	{
+		return false;
+	}
+	return glfwWindowShouldClose(this->handle);
 }
 
 void Window::SetResizable(bool resizable)
