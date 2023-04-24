@@ -30,7 +30,6 @@ void Window::SetResizeCallback(GLFWwindowsizefun fun)
 void Window::SetUnclosable()
 {
 	this->unclosable = true;
-	((_GLFWwindow*)this->handle)->callbacks.close = NULL;
 }
 
 bool Window::GetShouldClose()
