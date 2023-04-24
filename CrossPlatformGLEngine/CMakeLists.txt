@@ -3,7 +3,7 @@
 #
 
 # Add source to this project's executable.
-file(GLOB CrossPlatformGLEngine_SRC CMAKE_CONFIGURE_DEPENDS "*.hpp" "*.cpp")
+file(GLOB CrossPlatformGLEngine_SRC CMAKE_CONFIGURE_DEPENDS  "*.h" "*.cpp" "*.hpp" )
 add_library (CrossPlatformGLEngine ${CrossPlatformGLEngine_SRC})
 target_link_libraries(CrossPlatformGLEngine glfw)
 target_link_libraries(CrossPlatformGLEngine glad)
