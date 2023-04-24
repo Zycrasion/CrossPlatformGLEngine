@@ -1,7 +1,4 @@
 #include <CrossPlatformGLEngine.hpp>
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
 #include <thread>
 #include <cmath>
 
@@ -74,13 +71,7 @@ int main()
 
 	glfwGetWindowSize(*window, &width, &height);
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	ImGui_ImplGlfw_InitForOpenGL(*window, true);
-	ImGui_ImplOpenGL3_Init("#version 460 core");
-	ImGui::StyleColorsDark();
-
+	InitImgui(*window);
 
 	glfwMakeContextCurrent(NULL);
 	thread draw_thread(draw);
@@ -91,9 +82,7 @@ int main()
 		glfwPollEvents();
 	}
 
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
+	DestroyImgui();
 	
 	glfwTerminate();
 	return 0;
@@ -109,9 +98,7 @@ void draw()
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
+		NewFrame();
 
 		glUniform1f(t_loc, t);
 		glUniform3f(colour_loc, colour[0], colour[1], colour[2]);
@@ -123,8 +110,7 @@ void draw()
 		ImGui::ColorEdit3("Triangle Colour2", &colour[0]);
 		ImGui::End();
 
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		RenderImgui();
 
 		glfwSwapBuffers(*window);
 

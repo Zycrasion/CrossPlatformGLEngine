@@ -67,6 +67,9 @@ double lastTime = 0;
 
 int width, height;
 
+int w, h, nrChannels;
+
+
 unsigned int texture;
 
 int main()
@@ -76,7 +79,6 @@ int main()
 	cout << glGetString(GL_VERSION) << endl << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 	window = &win;
 
-	int w, h, nrChannels;
 	w = 0;
 	h = 0;
 	nrChannels = 0;
@@ -116,6 +118,8 @@ int main()
 
 	glfwGetWindowSize(*window, &width, &height);
 
+	InitImgui(*window);
+
 	glfwMakeContextCurrent(NULL);
 	thread draw_thread(draw);
 	draw_thread.detach();
@@ -129,6 +133,8 @@ int main()
 	{
 		draw_thread.join();
 	}
+
+	DestroyImgui();
 
 	glfwTerminate();
 	return 0;
@@ -155,6 +161,14 @@ void draw()
 
 
 		GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, mesh->length));
+
+		NewFrame();
+
+		ImGui::Begin("Image Viewer");
+		ImGui::Image((void*)(intptr_t)texture, ImVec2(w, h));
+		ImGui::End();
+
+		RenderImgui();
 
 		glfwSwapBuffers(*window);
 
