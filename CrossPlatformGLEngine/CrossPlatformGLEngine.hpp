@@ -3,6 +3,7 @@
 
 #pragma once
 #include "External.hpp"
+#include "Texture.hpp"
 #include "imgui_init.hpp"
 #include "Utilities.hpp"
 #include "Window.hpp"

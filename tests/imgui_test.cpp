@@ -110,6 +110,7 @@ void draw()
 		ImGui::ColorEdit3("Triangle Colour2", &colour[0]);
 		ImGui::End();
 
+
 		RenderImgui();
 
 		glfwSwapBuffers(*window);

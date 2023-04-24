@@ -7,6 +7,7 @@ using namespace std;
 void draw();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
+
 void CheckOpenGLError(const char* stmt, const char* fname, int line)
 {
 	GLenum err = glGetError();
@@ -26,7 +27,6 @@ void CheckOpenGLError(const char* stmt, const char* fname, int line)
 #define GL_CHECK(stmt) stmt
 #endif
 
-
 const char* vertexShaderSource = "#version 460 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "layout (location = 1) in vec2 aUV;\n"
@@ -42,18 +42,19 @@ const char* fragmentShaderSource = "#version 460 core\n"
 "out vec4 FragColour;\n"
 "in vec2 uv;\n"
 "uniform sampler2D image;\n"
+"uniform float m;\n"
 "void main()\n"
 "{\n"
-"	FragColour = mix(texture(image,uv) , vec4(uv,0.0,1.0), 0.1);\n"
+"	FragColour = mix(texture(image,uv) , vec4(uv,0.0,1.0), m);\n"
 "}\0";
 
 unsigned int shaderProgram;
 
 float vertices[] = {
 //   VERTICES				 UV COORDINATES
-	-0.5f, -0.5f, 0.0f,		 0.0f, 0.0f,
-	 0.5f, -0.5f, 0.0f,		 1.0f, 0.0f,
-	 0.0f,  0.5f, 0.0f,		 0.5f, 1.0f
+	-0.5f, -0.5f, 0.0f,		 0.0f, 1.0f,
+	 0.5f, -0.5f, 0.0f,		 1.0f, 1.0f,
+	 0.0f,  0.5f, 0.0f,		 0.5f, 0.0f
 };
 unsigned int VBO;
 unsigned int VAO;
@@ -69,8 +70,8 @@ int width, height;
 
 int w, h, nrChannels;
 
-
-unsigned int texture;
+Texture* c;
+Texture* n;
 
 int main()
 {
@@ -79,33 +80,17 @@ int main()
 	cout << glGetString(GL_VERSION) << endl << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 	window = &win;
 
-	w = 0;
-	h = 0;
-	nrChannels = 0;
-	unsigned char* data = stbi_load("res/container.jpg", &w, &h, &nrChannels, 0);
-	if (data)
-	{
-		GL_CHECK(glGenTextures(1, &texture));
-		GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture));
-		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE));
-		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-		
-		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data));
-		GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
-		stbi_image_free(data);
-	}
-	else
-	{
-		return 0;
-	}
+	Texture container = Texture("res/container.jpg");
+	container.Bind(0);
+
+	Texture nyan_cat = Texture("res/nyan_cat.png");
+
+	c = &container;
+	n = &nyan_cat;
 
 
 	Shader shader(vertexShaderSource, fragmentShaderSource);
 	shader.use();
-	GL_CHECK(glGetUniformLocation(shader.program, "image"));
 	int loc = glGetUniformLocation(shader.program, "image");
 	GL_CHECK(glUniform1i(loc, 0));
 
@@ -134,12 +119,13 @@ int main()
 		draw_thread.join();
 	}
 
-	DestroyImgui();
 
 	glfwTerminate();
 	return 0;
 }
 
+bool container = true;
+float mix = 0.1f;
 
 void draw()
 {
@@ -150,23 +136,27 @@ void draw()
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		GL_CHECK(glBindVertexArray(mesh->VAO));
-
 		glUniform1f(glGetUniformLocation(*shad, "t"), sin((float)glfwGetTime()));
 
-		GL_CHECK(glActiveTexture(GL_TEXTURE0));
-		GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture));
+		glUniform1f(shad->GetLocation("m"), mix);
 
 		shad->use();
+		
 
-
-		GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, mesh->length));
+		mesh->update(0.f);
 
 		NewFrame();
 
 		ImGui::Begin("Image Viewer");
-		ImGui::Image((void*)(intptr_t)texture, ImVec2(w, h));
+		ImGui::Image((void*)(intptr_t)(container ? n : c)->GetTexture(), ImVec2(144, 144));
+		if (ImGui::Button("Switch Texture"))
+		{
+			(container ? c : n)->Bind(0);
+			container = !container;
+		}
+		ImGui::SliderFloat("Mix", &mix, -2.0f, 2.0f);
 		ImGui::End();
+
 
 		RenderImgui();
 
@@ -194,6 +184,8 @@ void draw()
 			lastTime = currentTime;
 		}
 	}
+	DestroyImgui();
+
 }
 
 void framebuffer_size_callback(GLFWwindow* glfw_window, int w, int h)
