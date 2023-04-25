@@ -1,6 +1,6 @@
 #include "Mesh.hpp"
 
-Mesh::Mesh(float* vertices, int length, float* uv_coordinates, float* normals)
+Mesh::Mesh(float* vertices, int length, unsigned int* indices, int indices_length, float* uv_coordinates, float* normals)
 {
 	this->vertices = vertices;
 	this->length = length;
@@ -8,6 +8,9 @@ Mesh::Mesh(float* vertices, int length, float* uv_coordinates, float* normals)
 	this->uv_size = this->length * sizeof(float) * (uv_coordinates != NULL ? 2 : 0);
 	this->normals_size = this->vertices_size * (normals != NULL ? 1 : 0);
 	this->uv_coordinates = uv_coordinates;
+	this->indices = indices;
+	this->indices_length = indices_length;
+	this->indices_size = this->indices_length * sizeof(int);
 
 	glGenVertexArrays(1, &this->VAO);
 	glBindVertexArray(this->VAO);
@@ -17,10 +20,14 @@ Mesh::Mesh(float* vertices, int length, float* uv_coordinates, float* normals)
 	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
 	glBufferData(GL_ARRAY_BUFFER, this->vertices_size + this->uv_size + this->normals_size, NULL, GL_STATIC_DRAW);
 
+	glGenBuffers(1, &this->EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices_size, this->indices, GL_STATIC_DRAW);
+
 	int offset = 0;
 	glBufferSubData(GL_ARRAY_BUFFER, offset, this->vertices_size, vertices);
 	offset += this->vertices_size;
-	
+
 	if (uv_coordinates != NULL)
 	{
 		glBufferSubData(GL_ARRAY_BUFFER, offset, this->uv_size, uv_coordinates);
@@ -57,7 +64,7 @@ void Mesh::update(float deltaTime)
 	// Create
 	glBindVertexArray(this->VAO);
 
-	glDrawArrays(GL_TRIANGLES, 0, this->length);
+	glDrawElements(GL_TRIANGLES, this->indices_length, GL_UNSIGNED_INT, 0);
 }
 
 void Mesh::Flip()

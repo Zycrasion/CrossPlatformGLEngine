@@ -2,6 +2,7 @@
 #include "Component.hpp"
 #include "External.hpp"
 
+
 class Mesh : public Component
 {
 private:
@@ -13,12 +14,17 @@ private:
 	float* normals;
 	bool uv_coords;
 
+	int indices_size;
+	int indices_length;
+	unsigned int* indices;
+
 public:
 	int length;
 	unsigned int VBO;
 	unsigned int VAO;
+	unsigned int EBO;
 
-	Mesh(float* vertices, int length, float* uv_coordinates = NULL, float* normals = NULL);
+	Mesh(float* vertices, int length, unsigned int* indices, int indices_length, float* uv_coordinates = NULL, float* normals = NULL);
 	void init();
 	void update(float deltaTime);
 	void Flip();

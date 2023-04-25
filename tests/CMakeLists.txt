@@ -11,6 +11,7 @@ if (WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
 add_link_options( "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
 endif()
 
+add_executable(cube_test "cube_test.cpp")
 add_executable(imgui_test "imgui_test.cpp")
 add_executable(triangle_test "triangle_test.cpp")
 add_executable(multi_window_test "multi_window_test.cpp")
