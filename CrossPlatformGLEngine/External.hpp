@@ -6,3 +6,6 @@
 #include "stb_image.hpp"
 #include <fstream>
 #include <string>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>

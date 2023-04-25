@@ -1,7 +1,4 @@
 #include <CrossPlatformGLEngine.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <thread>
 
 void draw();
@@ -64,9 +61,18 @@ unsigned int indices[] = {
 
 Window* window;
 
+float scale = 0.5f;
+
+void Scroll(GLFWwindow* window, double xoffset, double yoffset)
+{
+	using namespace std;
+	scale += yoffset / 100.0f;
+}
+
 int main()
 {
 	window = Initialise(720, 480, "Cube Test");
+	glfwSetScrollCallback(*window, Scroll);
 
 	glfwMakeContextCurrent(NULL);
 	std::thread draw_thread(draw);
@@ -90,7 +96,7 @@ void draw()
 	glfwMakeContextCurrent(*window);
 	InitImgui(*window);
 
-	Mesh* square = LoadObj("res/mesh.obj");
+	Mesh* square = LoadObj("res/mario.obj");
 	Shader* shader = new Shader(vertexShaderSource, fragmentShaderSource);
 	shader->use();
 
@@ -98,7 +104,7 @@ void draw()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	stbi_set_flip_vertically_on_load(true);
-	Texture* texture = new Texture("res/burrito.png");
+	Texture* texture = new Texture("res/mario.png");
 	texture->Bind(0);
 
 	glUniform1i(shader->GetLocation("image"), 0);
@@ -107,14 +113,13 @@ void draw()
 
 
 	glm::mat4 view = glm::mat4(1.0f);
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
 
 	int ProjectionLoc = shader->GetLocation("projection");
 	int ModelLoc = shader->GetLocation("model");
 	int ViewLoc = shader->GetLocation("view");
+
+	glEnable(GL_DEPTH_TEST);
 
 
 	while (!glfwWindowShouldClose(*window))
@@ -126,12 +131,19 @@ void draw()
 		glfwGetCursorPos(*window, &x, &y);
 		window->UpdateSize();
 
+		glViewport(0,0, window->width, window->height);
+
+
 		x /= 10.f;
 		y /= 10.f;
 
 		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::scale(model, glm::vec3(scale));
 		model = glm::rotate(model, (float)glm::degrees(y/window->width), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, (float)-glm::degrees(x/window->height), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		glm::mat4 projection;
+		projection = glm::perspective(glm::radians(45.0f), (float)window->width / (float)window->height, 0.1f, 100.0f);
 
 		glUniformMatrix4fv(ProjectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(ModelLoc, 1, GL_FALSE, glm::value_ptr(model));
