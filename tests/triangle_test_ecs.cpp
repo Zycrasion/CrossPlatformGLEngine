@@ -51,10 +51,8 @@ Mesh* triangle;
 
 int main()
 {
-	Window win = Initialise(720, 480, "hi");
-	win.SetResizeCallback(framebuffer_size_callback);
-
-	window = &win;
+	window = Initialise(720, 480, "hi");
+	window->SetResizeCallback(framebuffer_size_callback);
 
 	Mesh m = Mesh(vertices, 3, false);
 	triangle = &m;

@@ -48,9 +48,15 @@ const char* fragmentShaderSource = "#version 460 core\n"
 
 float vertices[] = {
 //   VERTICES				 UV COORDINATES
-	-0.5f, -0.5f, 0.0f,		 0.0f, 1.0f,
-	 0.5f, -0.5f, 0.0f,		 1.0f, 1.0f,
-	 0.0f,  0.5f, 0.0f,		 0.5f, 0.0f
+	-0.5f, -0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f,
+	 0.0f,  0.5f, 0.0f
+};
+
+float uv_coordinates[] = {
+	0.0f, 1.0f,
+	1.0f, 1.0f,
+	0.5f, 0.0f
 };
 
 Window* window;
@@ -93,10 +99,20 @@ int main()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Mesh triangle = Mesh(vertices, 3, true);
+	Mesh triangle = Mesh(vertices, 3, uv_coordinates);
 	mesh = &triangle;
 
 	glClearColor(0.2f, 0.1f, 0.1f, 1.0f);
+
+	while (1)
+	{
+		GLenum error = glGetError();
+		if (error == GL_NO_ERROR)
+		{
+			break;
+		}
+		printf("OpenGL error %08x\n", error);
+	}
 
 	InitImgui(*window);
 

@@ -47,10 +47,8 @@ int colour_loc = 1;
 
 int main()
 {
-	Window win = Initialise(720, 480, "hi");
-	win.SetResizeCallback(framebuffer_size_callback);
-
-	window = &win;
+	window = Initialise(720, 480, "hi");
+	window->SetResizeCallback(framebuffer_size_callback);
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);

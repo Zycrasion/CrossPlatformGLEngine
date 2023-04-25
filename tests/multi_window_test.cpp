@@ -41,15 +41,11 @@ bool running = true;
 
 int main()
 {
-	Window win = Initialise(720, 480, "hi");
-	win.SetResizeCallback(framebuffer_size_callback);
+	window = Initialise(720, 480, "hi");
+	window->SetResizeCallback(framebuffer_size_callback);
 
-	window = &win;
-
-	Window win2 = Initialise(480, 720, "hi2");
-	win2.SetResizable(false);
-	
-	secondWindow = &win2;
+	secondWindow = Initialise(720, 480, "hi");
+	secondWindow->SetResizeCallback(framebuffer_size_callback);
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);

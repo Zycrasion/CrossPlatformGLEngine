@@ -5,8 +5,12 @@
 class Mesh : public Component
 {
 private:
+	int vertices_size;
 	float* vertices;
-	int size;
+	int uv_size;
+	float* uv_coordinates;
+	int normals_size;
+	float* normals;
 	bool uv_coords;
 
 public:
@@ -14,7 +18,7 @@ public:
 	unsigned int VBO;
 	unsigned int VAO;
 
-	Mesh(float* vertices, int length, bool uv_coordinates);
+	Mesh(float* vertices, int length, float* uv_coordinates = NULL, float* normals = NULL);
 	void init();
 	void update(float deltaTime);
 	void Flip();

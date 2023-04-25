@@ -54,11 +54,8 @@ unsigned int drawn_instances = instances;
 
 int main()
 {
-	Window win = Initialise(720, 480, "hi");
-	win.SetResizeCallback(framebuffer_size_callback);
-	win.SetResizable(false);
-
-	window = &win;
+	window = Initialise(720, 480, "hi");
+	window->SetResizeCallback(framebuffer_size_callback);
 
 	Mesh tri = Mesh(vertices, 3, false);
 	triangle = &tri;

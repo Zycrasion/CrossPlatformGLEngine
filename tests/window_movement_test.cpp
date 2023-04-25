@@ -52,9 +52,9 @@ unsigned int shaderProgram;
 
 float vertices[] = {
 //   VERTICES				 UV COORDINATES
-	-0.5f, -0.5f, 0.0f,		 0.0f, 1.0f,
-	 0.5f, -0.5f, 0.0f,		 1.0f, 1.0f,
-	 0.0f,  0.5f, 0.0f,		 0.5f, 0.0f
+	-0.5f, -0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f,
+	 0.0f,  0.5f, 0.0f
 };
 unsigned int VBO;
 unsigned int VAO;
@@ -75,10 +75,8 @@ Texture* n;
 
 int main()
 {
-	Window win = Initialise(720, 480, "hi");
-	win.SetResizeCallback(framebuffer_size_callback);
-	cout << glGetString(GL_VERSION) << endl << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
-	window = &win;
+	window = Initialise(720, 480, "hi");
+	window->SetResizeCallback(framebuffer_size_callback);
 	window->SetUnclosable(true); // its an abomination
 
 	Texture container = Texture("res/container.jpg");
@@ -97,8 +95,7 @@ int main()
 
 	shad = &shader;
 
-	Mesh triangle = Mesh(vertices, 3, true);
-	mesh = &triangle;
+	mesh = new Mesh(vertices, 3);
 
 	glClearColor(0.2f, 0.1f, 0.1f, 1.0f);
 
