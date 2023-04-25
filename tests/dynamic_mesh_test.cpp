@@ -63,7 +63,7 @@ void RenderImguiWindow()
 {
 	NewFrame();
 	ImGui::Begin("Mesh Controller");
-	ImGui::Image((void*)framebuffer->GetTexture(), ImVec2(144, 144));
+	ImGui::Image((void*)framebuffer->GetTexture(), ImVec2(144, 144 * ((float)window->height / (float)window->width)));
 	if (ImGui::Button("Revert Mesh Data"))
 		memcpy(rotated_verts, vertices, sizeof(vertices));
 
