@@ -14,15 +14,18 @@ const char* vertexShaderSource = "#version 460 core\n"
 "uniform mat4 projection;\n"
 "uniform mat4 model;\n"
 "uniform mat4 view;\n"
+"out vec3 norm;\n"
 "void main()\n"
 "{\n"
 "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
 "	uv = aUV;\n"
+"	norm = aNormal;\n"
 "}\0";
 
 const char* fragmentShaderSource = "#version 460 core\n"
 "out vec4 FragColour;\n"
 "in vec2 uv;\n"
+"in vec3 norm;\n"
 "uniform sampler2D image;\n"
 "void main()\n"
 "{\n"
@@ -64,7 +67,6 @@ Window* window;
 int main()
 {
 	window = Initialise(720, 480, "Cube Test");
-	window->SetResizable(false);
 
 	glfwMakeContextCurrent(NULL);
 	std::thread draw_thread(draw);
@@ -88,7 +90,7 @@ void draw()
 	glfwMakeContextCurrent(*window);
 	InitImgui(*window);
 
-	Mesh* square = new Mesh(vertices, 4, indices, 6, uv_coords);
+	Mesh* square = LoadObj("res/mesh.obj");
 	Shader* shader = new Shader(vertexShaderSource, fragmentShaderSource);
 	shader->use();
 
@@ -101,11 +103,8 @@ void draw()
 
 	glUniform1i(shader->GetLocation("image"), 0);
 
-
 	glClearColor(0.5, 0.2, 0.2, 1.0);
 
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	glm::mat4 view = glm::mat4(1.0f);
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
@@ -117,17 +116,36 @@ void draw()
 	int ModelLoc = shader->GetLocation("model");
 	int ViewLoc = shader->GetLocation("view");
 
+
 	while (!glfwWindowShouldClose(*window))
 	{
 		glfwMakeContextCurrent(*window);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glm::mat4 transform = glm::mat4(1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		double x,y;
+		glfwGetCursorPos(*window, &x, &y);
+		window->UpdateSize();
+
+		x /= 10.f;
+		y /= 10.f;
+
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, (float)glm::degrees(y/window->width), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, (float)-glm::degrees(x/window->height), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		glUniformMatrix4fv(ProjectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(ModelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(ViewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
 		square->update(0.f);
+	
+		NewFrame();
+
+		ImGui::Begin("Window");
+		ImGui::End();
+
+		RenderImgui();
+
 		glfwSwapBuffers(*window);
 	}
 

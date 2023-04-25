@@ -12,3 +12,4 @@
 #include "Node.hpp"
 #include "Component.hpp"
 #include "Mesh.hpp"
+#include "ObjLoader.hpp"
