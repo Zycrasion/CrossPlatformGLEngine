@@ -4,8 +4,6 @@
 
 using namespace std;
 void draw();
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-
 
 void CheckOpenGLError(const char* stmt, const char* fname, int line)
 {
@@ -31,10 +29,11 @@ const char* vertexShaderSource = "#version 460 core\n"
 "layout (location = 1) in vec2 aUV;\n"
 "uniform float t;\n"
 "out vec2 uv;\n"
+"uniform float flip;"
 "void main()\n"
 "{\n"
 "	uv = aUV;\n"
-"   gl_Position = vec4(aPos.x + t, aPos.yz, 1.0);\n"
+"   gl_Position = vec4(aPos.x + t, aPos.y * flip, aPos.z, 1.0);\n"
 "}\0";
 
 const char* fragmentShaderSource = "#version 460 core\n"
@@ -47,60 +46,57 @@ const char* fragmentShaderSource = "#version 460 core\n"
 "	FragColour = mix(texture(image,uv) , vec4(uv,0.0,1.0), m);\n"
 "}\0";
 
-unsigned int shaderProgram;
-
 float vertices[] = {
 //   VERTICES				 UV COORDINATES
 	-0.5f, -0.5f, 0.0f,		 0.0f, 1.0f,
 	 0.5f, -0.5f, 0.0f,		 1.0f, 1.0f,
 	 0.0f,  0.5f, 0.0f,		 0.5f, 0.0f
 };
-unsigned int VBO;
-unsigned int VAO;
 
 Window* window;
 Mesh* mesh;
-Shader* shad;
+Shader* shader;
 int frames = 0;
-
 double lastTime = 0;
 
-int width, height;
+Texture* container;
+Texture* nyan_cat;
 
-int w, h, nrChannels;
+Framebuffer* render_tex;
 
-Texture* c;
-Texture* n;
+std::vector<Texture*> textures;
+
+int index = 0;
+float mix = 0.1f;
 
 int main()
 {
-	Window win = Initialise(720, 480, "hi");
-	win.SetResizeCallback(framebuffer_size_callback);
-	cout << glGetString(GL_VERSION) << endl << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
-	window = &win;
+	window = Initialise(720, 480, "hi");
 
-	Texture container = Texture("res/container.jpg");
-	container.Bind(0);
+	container = new Texture("res/container.jpg");
+	nyan_cat = new Texture("res/nyan_cat.png");
+	render_tex = new Framebuffer(800, 800);
 
-	Texture nyan_cat = Texture("res/nyan_cat.png");
+	textures = std::vector<Texture*>();
+	textures.push_back(container);
+	textures.push_back(nyan_cat);
+	textures.push_back(render_tex->GetRenderTexture());
+	textures.push_back(new Texture("res/burrito.png"));
 
-	c = &container;
-	n = &nyan_cat;
+	textures[index]->Bind(0);
 
+	shader = new Shader(vertexShaderSource, fragmentShaderSource);
+	shader->use();
 
-	Shader shader(vertexShaderSource, fragmentShaderSource);
-	shader.use();
-	int loc = glGetUniformLocation(shader.program, "image");
+	int loc = glGetUniformLocation(shader->program, "image");
 	GL_CHECK(glUniform1i(loc, 0));
-
-	shad = &shader;
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Mesh triangle = Mesh(vertices, 3, true);
 	mesh = &triangle;
 
 	glClearColor(0.2f, 0.1f, 0.1f, 1.0f);
-
-	glfwGetWindowSize(*window, &width, &height);
 
 	InitImgui(*window);
 
@@ -124,35 +120,50 @@ int main()
 	return 0;
 }
 
-bool container = true;
-float mix = 0.1f;
+void RenderTexture()
+{
+	render_tex->Bind();
+	glUniform1f(shader->GetLocation("t"), 0.f);
+	glUniform1f(shader->GetLocation("m"), sin(glfwGetTime()));
+	glUniform1f(shader->GetLocation("flip"), -1.f);
+	textures[0]->Bind(0);
+	mesh->update(0.f);
+	render_tex->Unbind();
+	textures[index]->Bind(0);
+	glUniform1f(shader->GetLocation("flip"), 1.f);
+}
 
 void draw()
 {
 	while (!glfwWindowShouldClose(*window))
 	{
+		RenderTexture();
+
 		glfwMakeContextCurrent(*window);
-		glViewport(0, 0, width, height);
+		window->UpdateSize();
+		glViewport(0, 0, window->width, window->height);
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUniform1f(glGetUniformLocation(*shad, "t"), sin((float)glfwGetTime()));
+		glUniform1f(glGetUniformLocation(*shader, "t"), sin((float)glfwGetTime()));
 
-		glUniform1f(shad->GetLocation("m"), mix);
+		glUniform1f(shader->GetLocation("m"), mix);
 
-		shad->use();
-		
+		shader->use();
 
 		mesh->update(0.f);
 
 		NewFrame();
 
 		ImGui::Begin("Image Viewer");
-		ImGui::Image((void*)(intptr_t)(container ? n : c)->GetTexture(), ImVec2(144, 144));
+		ImGui::Image((void*)(intptr_t)textures[index]->GetTexture(), ImVec2(144, 144));
 		if (ImGui::Button("Switch Texture"))
 		{
-			(container ? c : n)->Bind(0);
-			container = !container;
+			index++;
+			if (index >= textures.size())
+				index = 0;
+			
+			textures[index]->Bind(0);
 		}
 		ImGui::SliderFloat("Mix", &mix, -2.0f, 2.0f);
 		ImGui::End();
@@ -185,11 +196,4 @@ void draw()
 		}
 	}
 	DestroyImgui();
-
-}
-
-void framebuffer_size_callback(GLFWwindow* glfw_window, int w, int h)
-{
-	width = w;
-	height = h;
 }

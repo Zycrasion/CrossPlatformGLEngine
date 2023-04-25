@@ -25,6 +25,7 @@ float vertices[] = {
 	 0.0f,  0.5f, 0.0f
 };
 
+float* saved_verts;
 float* rotated_verts;
 Mesh* mesh;
 Window* window;
@@ -38,6 +39,9 @@ int main()
 
 	rotated_verts = new float[sizeof(vertices) / sizeof(float)] {};
 	memcpy(rotated_verts, vertices, sizeof(vertices));
+
+	saved_verts = new float[sizeof(vertices) / sizeof(float)] {};
+	memcpy(saved_verts, vertices, sizeof(vertices));
 
 	Shader shader(vertexShaderSource, fragmentShaderSource);
 	shader.use();
@@ -76,8 +80,8 @@ void RenderImguiWindow()
 		float t = glfwGetTime();
 		for (int i = 0; i < sizeof(vertices) / sizeof(float); i += 3)
 		{
-			rotated_verts[i + 0] = cos(t) * vertices[i + 0] - sin(t) * vertices[i + 1];
-			rotated_verts[i + 1] = sin(t) * vertices[i + 0] + cos(t) * vertices[i + 1];
+			rotated_verts[i + 0] = cos(t) * saved_verts[i + 0] - sin(t) * saved_verts[i + 1];
+			rotated_verts[i + 1] = sin(t) * saved_verts[i + 0] + cos(t) * saved_verts[i + 1];
 		}
 	}
 	ImGui::End();

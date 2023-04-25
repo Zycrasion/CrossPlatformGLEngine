@@ -5,6 +5,7 @@ Mesh::Mesh(float* vertices, int length, bool uv_coordinates)
 	this->vertices = vertices;
 	this->length = length;
 	this->size = this->length * sizeof(float) * 3;
+	this->uv_coords = uv_coordinates;
 
 	if (uv_coordinates)
 	{
@@ -52,7 +53,7 @@ void Mesh::update(float deltaTime)
 
 void Mesh::Flip()
 {
-	for (int i = 0; i < this->length * 3; i += 3)
+	for (int i = 0; i < this->length * (this->uv_coords ? 5 : 3); i += (this->uv_coords ? 5 : 3))
 	{
 		// Flip Y Axis
 		this->vertices[i + 1] = -this->vertices[i + 1];

@@ -28,6 +28,7 @@ public:
 
 	Framebuffer(int width, int height);
 
+	Texture* GetRenderTexture() { return this->RenderTexture; }
 	unsigned int GetTexture() { return this->RenderTexture->GetTexture(); }
 	void Bind();
 	void Unbind();

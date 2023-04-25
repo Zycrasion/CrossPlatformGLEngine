@@ -7,6 +7,7 @@ class Mesh : public Component
 private:
 	float* vertices;
 	int size;
+	bool uv_coords;
 
 public:
 	int length;
