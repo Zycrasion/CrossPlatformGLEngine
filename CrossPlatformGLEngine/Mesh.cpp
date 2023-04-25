@@ -8,9 +8,14 @@ Mesh::Mesh(float* vertices, int length, unsigned int* indices, int indices_lengt
 	this->uv_size = this->length * sizeof(float) * (uv_coordinates != NULL ? 2 : 0);
 	this->normals_size = this->vertices_size * (normals != NULL ? 1 : 0);
 	this->uv_coordinates = uv_coordinates;
-	this->indices = indices;
-	this->indices_length = indices_length;
-	this->indices_size = this->indices_length * sizeof(int);
+	this->use_indices = indices != NULL;
+
+	if (this->use_indices)
+	{
+		this->indices = indices;
+		this->indices_length = indices_length;
+		this->indices_size = this->indices_length * sizeof(int);
+	}
 
 	glGenVertexArrays(1, &this->VAO);
 	glBindVertexArray(this->VAO);
@@ -20,9 +25,12 @@ Mesh::Mesh(float* vertices, int length, unsigned int* indices, int indices_lengt
 	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
 	glBufferData(GL_ARRAY_BUFFER, this->vertices_size + this->uv_size + this->normals_size, NULL, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &this->EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices_size, this->indices, GL_STATIC_DRAW);
+	if (this->use_indices)
+	{
+		glGenBuffers(1, &this->EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices_size, this->indices, GL_STATIC_DRAW);
+	}
 
 	int offset = 0;
 	glBufferSubData(GL_ARRAY_BUFFER, offset, this->vertices_size, vertices);
@@ -63,8 +71,13 @@ void Mesh::update(float deltaTime)
 {
 	// Create
 	glBindVertexArray(this->VAO);
-
-	glDrawElements(GL_TRIANGLES, this->indices_length, GL_UNSIGNED_INT, 0);
+	if (this->use_indices)
+	{
+		glDrawElements(GL_TRIANGLES, this->indices_length, GL_UNSIGNED_INT, 0);
+	} else 
+	{
+		glDrawArrays(GL_TRIANGLES, 0, this->length);
+	}
 }
 
 void Mesh::Flip()

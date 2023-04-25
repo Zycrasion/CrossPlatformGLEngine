@@ -14,6 +14,7 @@ private:
 	float* normals;
 	bool uv_coords;
 
+	bool use_indices;
 	int indices_size;
 	int indices_length;
 	unsigned int* indices;
@@ -24,7 +25,7 @@ public:
 	unsigned int VAO;
 	unsigned int EBO;
 
-	Mesh(float* vertices, int length, unsigned int* indices, int indices_length, float* uv_coordinates = NULL, float* normals = NULL);
+	Mesh(float* vertices, int length, unsigned int* indices = NULL, int indices_length = NULL, float* uv_coordinates = NULL, float* normals = NULL);
 	void init();
 	void update(float deltaTime);
 	void Flip();

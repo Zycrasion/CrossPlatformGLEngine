@@ -99,7 +99,7 @@ int main()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Mesh triangle = Mesh(vertices, 3, uv_coordinates);
+	Mesh triangle = Mesh(vertices, 3, NULL, NULL, uv_coordinates);
 	mesh = &triangle;
 
 	glClearColor(0.2f, 0.1f, 0.1f, 1.0f);
