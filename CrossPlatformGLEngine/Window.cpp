@@ -27,9 +27,9 @@ void Window::SetResizeCallback(GLFWwindowsizefun fun)
 	glfwSetWindowSizeCallback(this->handle, fun);
 }
 
-void Window::SetUnclosable()
+void Window::SetUnclosable(bool unclosable)
 {
-	this->unclosable = true;
+	this->unclosable = unclosable;
 }
 
 bool Window::GetShouldClose()

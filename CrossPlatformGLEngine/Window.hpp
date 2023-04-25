@@ -12,7 +12,7 @@ public:
 
 	void SetResizable(bool resizable);
 	void SetResizeCallback(GLFWwindowsizefun fun);
-	void SetUnclosable();
+	void SetUnclosable(bool unclosable);
 	bool GetShouldClose();
 	void SetTitle(const char* title);
 

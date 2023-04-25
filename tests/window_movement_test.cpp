@@ -79,7 +79,7 @@ int main()
 	win.SetResizeCallback(framebuffer_size_callback);
 	cout << glGetString(GL_VERSION) << endl << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 	window = &win;
-	window->SetUnclosable(); // its an abomination
+	window->SetUnclosable(true); // its an abomination
 
 	Texture container = Texture("res/container.jpg");
 	container.Bind(0);
