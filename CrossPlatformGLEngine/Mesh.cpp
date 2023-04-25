@@ -4,6 +4,7 @@ Mesh::Mesh(float* vertices, int length, bool uv_coordinates)
 {
 	this->vertices = vertices;
 	this->length = length;
+	this->size = this->length * sizeof(float) * 3;
 
 	if (uv_coordinates)
 	{
@@ -47,4 +48,27 @@ void Mesh::update(float deltaTime)
 	glBindVertexArray(this->VAO);
 
 	glDrawArrays(GL_TRIANGLES, 0, this->length);
+}
+
+void Mesh::Flip()
+{
+	for (int i = 0; i < this->length * 3; i += 3)
+	{
+		// Flip Y Axis
+		this->vertices[i + 1] = -this->vertices[i + 1];
+	}
+	this->ReplaceVBOData(this->vertices);
+}
+
+void Mesh::BindVBO(GLenum target)
+{
+	glBindBuffer(target, this->VBO);
+}
+
+void Mesh::ReplaceVBOData(float* vertices)
+{
+	this->BindVBO();
+	this->vertices = new float[this->length * 3];
+	memcpy(this->vertices, vertices, this->size);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, this->size, this->vertices);
 }

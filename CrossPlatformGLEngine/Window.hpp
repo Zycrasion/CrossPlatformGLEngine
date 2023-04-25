@@ -7,6 +7,7 @@ private:
 	bool unclosable;
 	GLFWwindow* handle;
 public:
+	int width, height;
 	Window(int width, int height, const char* title);
 	~Window();
 
@@ -15,6 +16,7 @@ public:
 	void SetUnclosable(bool unclosable);
 	bool GetShouldClose();
 	void SetTitle(const char* title);
+	void UpdateSize() { glfwGetWindowSize(*this, &this->width, &this->height); }
 
 	static void DefaultResizeCallback(GLFWwindow* window, int width, int height);
 

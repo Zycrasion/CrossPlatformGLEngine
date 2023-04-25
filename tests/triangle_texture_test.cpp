@@ -1,4 +1,3 @@
-#define STB_IMAGE_IMPLEMENTATION
 #include <CrossPlatformGLEngine.hpp>
 #include <thread>
 #include <cmath>

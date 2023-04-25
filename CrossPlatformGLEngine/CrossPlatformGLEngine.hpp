@@ -2,6 +2,7 @@
 // or project specific include files.
 
 #pragma once
+#define STB_IMAGE_IMPLEMENTATION
 #include "External.hpp"
 #include "Texture.hpp"
 #include "imgui_init.hpp"
