@@ -1,43 +1,10 @@
 #include <CrossPlatformGLEngine.hpp>
 #include <thread>
+using namespace std;
+
+int main();
 
 void draw();
-
-const char* vertexShaderSource = "#version 460 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"layout (location = 1) in vec2 aUV;\n"
-"layout (location = 2) in vec3 aNormal;\n"
-"out vec2 uv;\n"
-"uniform mat4 projection;\n"
-"uniform mat4 model;\n"
-"uniform mat4 view;\n"
-"out vec3 norm;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
-"	uv = aUV;\n"
-"	norm = aNormal;\n"
-"}\0";
-
-const char* fragmentShaderSource = "#version 460 core\n"
-"out vec4 FragColour;\n"
-"in vec2 uv;\n"
-"in vec3 norm;\n"
-"uniform sampler2D image;\n"
-"void main()\n"
-"{\n"
-"	FragColour = texture(image,uv);\n"
-"}\0";
-
-void PrintOGLError()
-{
-	GLenum error = glGetError();
-	if (error == GLFW_NO_ERROR)
-		return;
-
-	printf("OpenGL error: %08x", error);
-}
-
 
 
 float vertices[] = {
@@ -62,17 +29,28 @@ unsigned int indices[] = {
 Window* window;
 
 float scale = 0.5f;
+double SavedX, SavedY; // For Mouse
+bool Locked = false;
+
 
 void Scroll(GLFWwindow* window, double xoffset, double yoffset)
 {
-	using namespace std;
 	scale += yoffset / 100.0f;
+}
+
+void Key(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == 'E' && action == GLFW_PRESS)
+	{
+		Locked = !Locked;
+	}
 }
 
 int main()
 {
 	window = Initialise(720, 480, "Cube Test");
 	glfwSetScrollCallback(*window, Scroll);
+	glfwSetKeyCallback(*window, Key);
 
 	glfwMakeContextCurrent(NULL);
 	std::thread draw_thread(draw);
@@ -97,17 +75,18 @@ void draw()
 	InitImgui(*window);
 
 	Mesh* square = LoadObj("res/mario.obj");
-	Shader* shader = new Shader(vertexShaderSource, fragmentShaderSource);
+	Mesh* light = LoadObj("res/light.obj");
+
+	Shader* shader = ShaderFromFiles("res/Shaders/3D_Lit.vert", "res/Shaders/3D_Lit.frag");
 	shader->use();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	stbi_set_flip_vertically_on_load(true);
-	Texture* texture = new Texture("res/mario.png");
-	texture->Bind(0);
+	Texture* MarioTexture = new Texture("res/mario.png");
 
-	glUniform1i(shader->GetLocation("image"), 0);
+	Texture* LightTexture = new Texture("res/Light.png");
 
 	glClearColor(0.5, 0.2, 0.2, 1.0);
 
@@ -118,6 +97,9 @@ void draw()
 	int ProjectionLoc = shader->GetLocation("projection");
 	int ModelLoc = shader->GetLocation("model");
 	int ViewLoc = shader->GetLocation("view");
+	int LightPositionLoc = shader->GetLocation("LightPosition");
+
+	glm::vec3 LightPosition(1.0);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -128,7 +110,11 @@ void draw()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		double x,y;
-		glfwGetCursorPos(*window, &x, &y);
+		if (!Locked)
+			glfwGetCursorPos(*window, &SavedX, &SavedY);
+		
+		x = SavedX;
+		y = SavedY;
 		window->UpdateSize();
 
 		glViewport(0,0, window->width, window->height);
@@ -138,23 +124,63 @@ void draw()
 		y /= 10.f;
 
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::scale(model, glm::vec3(scale));
-		model = glm::rotate(model, (float)glm::degrees(y/window->width), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, (float)-glm::degrees(x/window->height), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(scale / 5.f));
+		model = glm::rotate(model, (float)glm::degrees(y / 500), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, (float)-glm::degrees(x / 500), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, LightPosition);
+
+		glm::vec3 pos = glm::vec3(model[3]);
+
+		glUniformMatrix4fv(ModelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
 		glm::mat4 projection;
 		projection = glm::perspective(glm::radians(45.0f), (float)window->width / (float)window->height, 0.1f, 100.0f);
-
 		glUniformMatrix4fv(ProjectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(ModelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(ViewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniform3fv(LightPositionLoc, 1, glm::value_ptr(pos));
 
+		LightTexture->Bind(0);
+		light->update(0.f);
+
+		model = glm::scale(glm::mat4(1.0), glm::vec3(scale / 10.f));
+		model = glm::rotate(model, (float)glm::degrees(y / 500), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, (float)-glm::degrees(x / 500), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		glUniformMatrix4fv(ModelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		MarioTexture->Bind(0);
 		square->update(0.f);
-	
+
+
 		NewFrame();
 
-		ImGui::Begin("Window");
-		ImGui::End();
+		try
+		{
+			ImGui::Begin("Window");
+			ImGui::Checkbox("Lock Camera", &Locked);
+			if (ImGui::Button("Reload Shaders"))
+			{
+				shader->~Shader();
+				free(shader);
+
+				shader = ShaderFromFiles("res/Shaders/3D_Lit.vert", "res/Shaders/3D_Lit.frag");
+				shader->use();
+
+				ProjectionLoc = shader->GetLocation("projection");
+				ModelLoc = shader->GetLocation("model");
+				ViewLoc = shader->GetLocation("view");
+				LightPositionLoc = shader->GetLocation("LightPosition");
+			}
+
+			ImGui::SliderFloat3("Light Position", glm::value_ptr(LightPosition), -10.f, 10.f);
+
+			ImGui::End();
+		}
+		catch (...)
+		{
+			cout << "ERROR::IMGUI" << endl;
+		}
+
 
 		RenderImgui();
 
@@ -163,3 +189,4 @@ void draw()
 
 	DestroyImgui();
 }
+

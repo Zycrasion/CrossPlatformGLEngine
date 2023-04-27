@@ -141,9 +141,9 @@ Mesh *LoadObj(const char *filename)
 		uv[(i / 3) * 2 + 1] = UV[(textureIndex * 2) + 1];
 
 		int normalIndex = indices[i + 2] - 1;
-		norms[i + 0] = normals[(normalIndex) + 0];
-		norms[i + 1] = normals[(normalIndex) + 1];
-		norms[i + 2] = normals[(normalIndex) + 2];
+		norms[i + 0] = normals[(normalIndex * 3) + 0];
+		norms[i + 1] = normals[(normalIndex * 3) + 1];
+		norms[i + 2] = normals[(normalIndex * 3) + 2];
 	}
 	Mesh *mesh = new Mesh(verts, indices.size() / 3, NULL, NULL, uv, norms);
 
