@@ -59,8 +59,13 @@ void draw()
 	glfwMakeContextCurrent(*window);
 	InitImgui(*window);
 
-	Mesh* square = LoadObj("res/mario.obj");
+	Mesh square = *LoadObj("res/mario.obj");
 	Mesh* light = LoadObj("res/light.obj");
+	Camera MainCamera = Camera();
+	Node mario = Node();
+	mario.components.push_back(&square);
+	StandardMaterial Mat = StandardMaterial(&MainCamera, window, &mario);
+	square.BindMaterial(&Mat);
 
 	Shader* shader = ShaderFromFiles("res/Shaders/3D_Lit.vert", "res/Shaders/3D_Lit.frag");
 	shader->use();
@@ -131,9 +136,10 @@ void draw()
 		model = glm::rotate(model, (float)-glm::degrees(x / 500), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		glUniformMatrix4fv(ModelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-		MarioTexture->Bind(0);
-		square->update(0.f);
+		
+		mario.
+		Mat.SetDiffuse(MarioTexture);
+		mario.update(0.f);
 
 
 		NewFrame();
@@ -172,6 +178,5 @@ void draw()
 
 		this_thread::sleep_for(1.6ms);
 	}
-	delete square;
 	DestroyImgui();
 }
