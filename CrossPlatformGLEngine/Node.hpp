@@ -1,12 +1,13 @@
 #pragma once
 #include "External.hpp"
+#include <glm/glm.hpp>
 #include "Component.hpp"
 
 class Node
 {
 public:
-	std::vector<Node> nodes;
-	std::vector<Component> components;
+	std::vector<Node*> nodes;
+	std::vector<Component*> components;
 	glm::vec3 position;
 	glm::vec3 rotation;
 	glm::vec3 scale;

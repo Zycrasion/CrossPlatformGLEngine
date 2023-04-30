@@ -1,6 +1,6 @@
 #include "Mesh.hpp"
 
-Mesh::Mesh(float* vertices, int length, unsigned int* indices, int indices_length, float* uv_coordinates, float* normals)
+Mesh::Mesh(float *vertices, int length, unsigned int *indices, int indices_length, float *uv_coordinates, float *normals)
 {
 	this->vertices = vertices;
 	this->length = length;
@@ -10,6 +10,7 @@ Mesh::Mesh(float* vertices, int length, unsigned int* indices, int indices_lengt
 	this->normals = normals;
 	this->uv_coordinates = uv_coordinates;
 	this->use_indices = indices != NULL;
+	this->mat = nullptr;
 
 	if (this->use_indices)
 	{
@@ -88,6 +89,11 @@ Mesh::~Mesh()
 	}
 }
 
+void Mesh::BindMaterial(Material* mat)
+{
+	this->mat = mat;
+}
+
 void Mesh::init()
 {
 	// Do nothing since the Mesh can only be initialised once
@@ -96,6 +102,10 @@ void Mesh::init()
 void Mesh::update(float deltaTime)
 {
 	// Create
+	if (this->mat != nullptr)
+	{
+		this->mat->bind();
+	}
 	glBindVertexArray(this->VAO);
 	if (this->use_indices)
 	{

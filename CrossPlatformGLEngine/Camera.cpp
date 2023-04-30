@@ -14,3 +14,9 @@ glm::mat4 Camera::GetProjection(Window* win)
 	return glm::perspective(glm::radians(this->fov), (float) win->width / (float) win->height, 0.1f, 100.0f);
 }
 
+glm::mat4 Camera::GetTransform()
+{
+	glm::mat4 model = glm::mat4();
+	model = glm::translate(model, this->position);
+	return model;
+}

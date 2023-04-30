@@ -14,4 +14,5 @@ public:
 	Camera();
 
 	glm::mat4 GetProjection(Window* win);
+	glm::mat4 GetTransform();
 };

@@ -3,6 +3,7 @@
 #include "Texture.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
+#include "Node.hpp"
 
 class Material
 {
@@ -16,9 +17,10 @@ private:
 	Shader* shader;
 	Camera* camera;
 	Window* window;
+	Node* p_Node;
 
 public:
-	StandardMaterial(Camera* cam, Window* win);
+	StandardMaterial(Camera* cam, Window* win, Node* p_Node);
 	~StandardMaterial();
 	void bind();
 	void SetDiffuse(Texture* texture);

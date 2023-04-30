@@ -11,5 +11,6 @@
 #include "Shader.hpp"
 #include "Node.hpp"
 #include "Component.hpp"
+#include "Material.hpp"
 #include "Mesh.hpp"
 #include "ObjLoader.hpp"
