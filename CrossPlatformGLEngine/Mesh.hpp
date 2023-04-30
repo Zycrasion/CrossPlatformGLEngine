@@ -1,7 +1,7 @@
 #pragma once
 #include "Component.hpp"
 #include "External.hpp"
-
+#include "Material.hpp"
 
 class Mesh : public Component
 {
@@ -19,15 +19,18 @@ private:
 	int indices_length;
 	unsigned int* indices;
 
+	Material* mat;
+
 public:
 	int length;
 	unsigned int VBO;
 	unsigned int VAO;
 	unsigned int EBO;
 
-	Mesh(float* vertices, int length, unsigned int* indices = NULL, int indices_length = NULL, float* uv_coordinates = NULL, float* normals = NULL);
+	Mesh(float* vertices, int length, unsigned int* indices = NULL, int indices_length = 0, float* uv_coordinates = NULL, float* normals = NULL);
 	~Mesh();
 	void init();
+	void BindMaterial(Material* material);
 	void update(float deltaTime);
 	void Flip();
 

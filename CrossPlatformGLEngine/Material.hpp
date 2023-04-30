@@ -13,12 +13,13 @@ public:
 class StandardMaterial : public Material
 {
 private:
-	Texture* Diffuse;
 	Shader* shader;
 	Camera* camera;
+	Window* window;
 
 public:
-	StandardMaterial();
+	StandardMaterial(Camera* cam, Window* win);
 	~StandardMaterial();
 	void bind();
+	void SetDiffuse(Texture* texture);
 };

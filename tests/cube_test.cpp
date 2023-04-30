@@ -43,7 +43,7 @@ int main()
 	while (!glfwWindowShouldClose(*window))
 	{
 		glfwPollEvents();
-		this_thread::sleep_for(16ms);
+		this_thread::sleep_for(1.6ms);
 	}
 
 	if (draw_thread.joinable())
@@ -69,7 +69,7 @@ void draw()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	stbi_set_flip_vertically_on_load(true);
-	Texture* MarioTexture = new Texture("res/mario.png");
+	Texture* MarioTexture = new Texture("res/Mario.png");
 
 	Texture* LightTexture = new Texture("res/Light.png");
 
@@ -142,10 +142,9 @@ void draw()
 		{
 			ImGui::Begin("Window");
 			ImGui::Checkbox("Lock Camera", &Locked);
-			if (ImGui::Button("Reload Shaders"))
+			if (ImGui::Button("Reload Shaders") || true)
 			{
-				shader->~Shader();
-				free(shader);
+				delete shader;
 
 				shader = ShaderFromFiles("res/Shaders/3D_Lit.vert", "res/Shaders/3D_Lit.frag");
 				shader->use();
@@ -173,6 +172,6 @@ void draw()
 
 		this_thread::sleep_for(1.6ms);
 	}
-
+	delete square;
 	DestroyImgui();
 }

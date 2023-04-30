@@ -104,7 +104,7 @@ Mesh *LoadObj(const char *filename)
 			float *vec = ParseVector(contents, 2);
 			UV.push_back(vec[0]);
 			UV.push_back(vec[1]);
-			delete vec;
+			delete [] vec;
 		}
 		else if (lineContents.starts_with("vn"))
 		{
@@ -112,14 +112,14 @@ Mesh *LoadObj(const char *filename)
 			float *vec = ParseVector(contents);
 			for (int i = 0; i < 3; i++)
 				normals.push_back(vec[i]);
-			delete vec;
+			delete [] vec;
 		}
 		else if (lineContents.starts_with("v"))
 		{
 			float *vec = ParseVector(contents);
 			for (int i = 0; i < 3; i++)
 				vertices.push_back(vec[i]);
-			delete vec;
+			delete [] vec;
 		}
 		else if (lineContents.starts_with("f"))
 		{
