@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.hpp"
 #include "External.hpp"
+#include "Node.hpp"
 #include "Material.hpp"
 
 class Mesh : public Component
@@ -31,7 +32,7 @@ public:
 	~Mesh();
 	void init();
 	void BindMaterial(Material* material);
-	void update(float deltaTime);
+	void update(float deltaTime, Node* p_node);
 	void Flip();
 
 	void BindVBO(GLenum target = GL_ARRAY_BUFFER);

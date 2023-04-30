@@ -31,7 +31,7 @@ void Node::update(float deltaTime)
 
 	for (int i = 0; i < this->components.size(); i++)
 	{
-		this->components[i]->update(deltaTime);
+		this->components[i]->update(deltaTime, this);
 	}
 }
 
@@ -39,9 +39,9 @@ glm::mat4 Node::GetTransform()
 {
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::scale(model, this->scale);
+	model = glm::translate(model, this->position);
 	model = glm::rotate(model, this->rotation.x, glm::vec3(1.f, 0.f, 0.f));
 	model = glm::rotate(model, this->rotation.y, glm::vec3(0.f, 1.f, 0.f));
 	model = glm::rotate(model, this->rotation.z, glm::vec3(0.f, 0.f, 1.f));
-	model = glm::translate(model, this->position);
 	return model;
 }

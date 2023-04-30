@@ -8,7 +8,7 @@
 class Material
 {
 public:
-	virtual void bind() = 0;
+	virtual void bind(Node* p_node) = 0;
 };
 
 class StandardMaterial : public Material
@@ -17,13 +17,12 @@ private:
 	Shader* shader;
 	Camera* camera;
 	Window* window;
-	Node* p_Node;
 	glm::vec3* LightPosition;
 
 public:
-	StandardMaterial(Camera* cam, Window* win, Node* p_Node);
+	StandardMaterial(Camera* cam, Window* win);
 	~StandardMaterial();
-	void bind();
+	void bind(Node* p_node);
 	void SetDiffuse(Texture* texture);
 	void BindLightPosition(glm::vec3* LightPosition);
 };

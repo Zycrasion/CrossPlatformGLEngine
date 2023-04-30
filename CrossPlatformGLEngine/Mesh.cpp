@@ -99,12 +99,12 @@ void Mesh::init()
 	// Do nothing since the Mesh can only be initialised once
 }
 
-void Mesh::update(float deltaTime)
+void Mesh::update(float deltaTime, Node* p_node)
 {
 	// Create
 	if (this->mat != nullptr)
 	{
-		this->mat->bind();
+		this->mat->bind(p_node);
 	}
 	glBindVertexArray(this->VAO);
 	if (this->use_indices)
