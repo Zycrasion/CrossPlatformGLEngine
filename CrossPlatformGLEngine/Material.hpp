@@ -18,10 +18,12 @@ private:
 	Camera* camera;
 	Window* window;
 	Node* p_Node;
+	glm::vec3* LightPosition;
 
 public:
 	StandardMaterial(Camera* cam, Window* win, Node* p_Node);
 	~StandardMaterial();
 	void bind();
 	void SetDiffuse(Texture* texture);
+	void BindLightPosition(glm::vec3* LightPosition);
 };

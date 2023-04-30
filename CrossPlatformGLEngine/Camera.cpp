@@ -16,7 +16,7 @@ glm::mat4 Camera::GetProjection(Window* win)
 
 glm::mat4 Camera::GetTransform()
 {
-	glm::mat4 model = glm::mat4();
+	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, this->position);
 	return model;
 }

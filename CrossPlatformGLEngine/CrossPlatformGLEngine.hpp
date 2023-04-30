@@ -13,4 +13,5 @@
 #include "Component.hpp"
 #include "Material.hpp"
 #include "Mesh.hpp"
+#include "Camera.hpp"
 #include "ObjLoader.hpp"

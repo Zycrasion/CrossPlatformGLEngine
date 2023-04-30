@@ -30,9 +30,17 @@ void Key(GLFWwindow* window, int key, int scancode, int action, int mods)
 	}
 }
 
+bool focused = true;
+
+void Focus(GLFWwindow* window, int glfw_focused)
+{
+	focused = glfw_focused == GLFW_TRUE;
+}
+
 int main()
 {
 	window = Initialise(720, 480, "Cube Test");
+	glfwSetWindowFocusCallback(*window, Focus);
 	glfwSetScrollCallback(*window, Scroll);
 	glfwSetKeyCallback(*window, Key);
 
@@ -59,19 +67,21 @@ void draw()
 	glfwMakeContextCurrent(*window);
 	InitImgui(*window);
 
-	Mesh square = *LoadObj("res/mario.obj");
+	Mesh* square = LoadObj("res/mario.obj");
 	Mesh* light = LoadObj("res/light.obj");
 	Camera MainCamera = Camera();
 	Node mario = Node();
-	mario.components.push_back(&square);
+	mario.components.push_back(square);
 	StandardMaterial Mat = StandardMaterial(&MainCamera, window, &mario);
-	square.BindMaterial(&Mat);
-
+	square->BindMaterial(&Mat);
+	
 	Shader* shader = ShaderFromFiles("res/Shaders/3D_Lit.vert", "res/Shaders/3D_Lit.frag");
 	shader->use();
 
+	/*
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	*/
 
 	stbi_set_flip_vertically_on_load(true);
 	Texture* MarioTexture = new Texture("res/Mario.png");
@@ -83,6 +93,8 @@ void draw()
 
 	glm::mat4 view = glm::mat4(1.0f);
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
+
+	MainCamera.position.z = -5.0f;
 
 	int ProjectionLoc = shader->GetLocation("projection");
 	int ModelLoc = shader->GetLocation("model");
@@ -119,6 +131,7 @@ void draw()
 		model = glm::translate(model, LightPosition);
 
 		glm::vec3 pos = glm::vec3(model[3]);
+		Mat.BindLightPosition(&pos);
 
 		glUniformMatrix4fv(ModelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
@@ -137,7 +150,11 @@ void draw()
 
 		glUniformMatrix4fv(ModelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		
-		mario.
+		mario.rotation.x = glm::degrees(y / 500);
+		mario.rotation.y = -glm::degrees(x / 500);
+
+		mario.scale = glm::vec3(scale / 10.f);
+
 		Mat.SetDiffuse(MarioTexture);
 		mario.update(0.f);
 
@@ -175,6 +192,10 @@ void draw()
 
 		glfwSwapBuffers(*window);
 
+		while (!focused)
+		{
+			this_thread::sleep_for(10ms);
+		}
 
 		this_thread::sleep_for(1.6ms);
 	}

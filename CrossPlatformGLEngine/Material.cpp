@@ -20,9 +20,15 @@ void StandardMaterial::bind()
 	this->shader->SetUniformMatrix4("projection", this->camera->GetProjection(this->window));
 	this->shader->SetUniformMatrix4("model", this->p_Node->GetTransform());
 	this->shader->SetUniformMatrix4("view", this->camera->GetTransform());
+	this->shader->SetUniformVec3("LightPosition", *this->LightPosition);
 }
 
 void StandardMaterial::SetDiffuse(Texture *texture)
 {
 	texture->Bind(0);
+}
+
+void StandardMaterial::BindLightPosition(glm::vec3* LightPosition)
+{
+	this->LightPosition = LightPosition;
 }
