@@ -97,32 +97,38 @@ Mesh *LoadObj(const char *filename)
 		if (lineContents.starts_with("#"))
 			continue;
 
+		const char* contents = lineContents.c_str();
+
 		if (lineContents.starts_with("vt"))
 		{
-			float *vec = ParseVector(lineContents.c_str(), 2);
+			float *vec = ParseVector(contents, 2);
 			UV.push_back(vec[0]);
 			UV.push_back(vec[1]);
+			delete vec;
 		}
 		else if (lineContents.starts_with("vn"))
 		{
 
-			float *vec = ParseVector(lineContents.c_str());
+			float *vec = ParseVector(contents);
 			for (int i = 0; i < 3; i++)
 				normals.push_back(vec[i]);
+			delete vec;
 		}
 		else if (lineContents.starts_with("v"))
 		{
-			float *vec = ParseVector(lineContents.c_str());
+			float *vec = ParseVector(contents);
 			for (int i = 0; i < 3; i++)
 				vertices.push_back(vec[i]);
+			delete vec;
 		}
 		else if (lineContents.starts_with("f"))
 		{
-			std::vector<unsigned int> faces = ParseFaces(lineContents.c_str());
+			std::vector<unsigned int> faces = ParseFaces(contents);
 			for (int i = 0; i < faces.size(); i++)
 			{
 				indices.push_back(faces[i]);
 			}
+		
 		}
 	}
 	float *uv = new float[2 * indices.size()];

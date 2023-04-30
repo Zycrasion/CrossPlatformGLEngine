@@ -6,36 +6,15 @@ int main();
 
 void draw();
 
-
-float vertices[] = {
-	-1.0, -1.0, 0.0f,
-	-1.0,  1.0,	0.0f,
-	 1.0,  1.0,	0.0f,
-	 1.0, -1.0,	0.0f
-};
-
-float uv_coords[] = {
-	 0.0,  0.0,
-	 0.0,  1.0,
-	 1.0,  1.0,
-	 1.0,  0.0
-};
-
-unsigned int indices[] = {
-	0,1,2,
-	2,0,3,
-};
-
 Window* window;
 
 float scale = 0.5f;
 double SavedX, SavedY; // For Mouse
 bool Locked = false;
 
-
 void Scroll(GLFWwindow* window, double xoffset, double yoffset)
 {
-	scale += yoffset / 100.0f;
+	scale += (float) yoffset / 100.0f;
 }
 
 void Key(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -43,6 +22,11 @@ void Key(GLFWwindow* window, int key, int scancode, int action, int mods)
 	if (key == 'E' && action == GLFW_PRESS)
 	{
 		Locked = !Locked;
+	}
+
+	if (key == 'Q')
+	{
+		exit(1);
 	}
 }
 
@@ -59,6 +43,7 @@ int main()
 	while (!glfwWindowShouldClose(*window))
 	{
 		glfwPollEvents();
+		this_thread::sleep_for(16ms);
 	}
 
 	if (draw_thread.joinable())
@@ -118,7 +103,6 @@ void draw()
 		window->UpdateSize();
 
 		glViewport(0,0, window->width, window->height);
-
 
 		x /= 10.f;
 		y /= 10.f;
@@ -185,8 +169,10 @@ void draw()
 		RenderImgui();
 
 		glfwSwapBuffers(*window);
+
+
+		this_thread::sleep_for(1.6ms);
 	}
 
 	DestroyImgui();
 }
-

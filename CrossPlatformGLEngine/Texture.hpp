@@ -12,7 +12,7 @@ public:
 	Texture(int width, int height);
 	~Texture();
 
-	void Bind(int target);
+	int Bind(int target);
 
 	unsigned int GetTexture() { return this->texture; }
 	operator unsigned int() { return this->texture; }

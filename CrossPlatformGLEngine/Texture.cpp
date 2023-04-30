@@ -45,10 +45,11 @@ Texture::~Texture()
 	glDeleteTextures(1, &this->texture);
 }
 
-void Texture::Bind(int target)
+int Texture::Bind(int target)
 {
 	glActiveTexture(GL_TEXTURE0 + target);
 	glBindTexture(GL_TEXTURE_2D, this->texture);
+	return target;
 }
 
 Framebuffer::Framebuffer(int width, int height)

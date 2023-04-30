@@ -26,6 +26,7 @@ public:
 	unsigned int EBO;
 
 	Mesh(float* vertices, int length, unsigned int* indices = NULL, int indices_length = NULL, float* uv_coordinates = NULL, float* normals = NULL);
+	~Mesh();
 	void init();
 	void update(float deltaTime);
 	void Flip();

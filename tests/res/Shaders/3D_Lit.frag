@@ -4,14 +4,14 @@ in vec3 normal;
 in vec2 uv;
 in vec3 fragpos;
 
-uniform sampler2D diffuse_tex;
+uniform sampler2D diffuse_texture;
 uniform vec3 LightPosition;
 
 out vec4 FragColour;
 
 void main()
 {
-    vec3 d = texture(diffuse_tex, uv).xyz;
+    vec3 d = texture(diffuse_texture, uv).xyz;
     vec3 lightColour = vec3(1.0);
 
     float ambient_strength = 0.1;
@@ -24,5 +24,5 @@ void main()
     vec3 diffuse = lightColour * diff;
 
     vec3 result = (ambient + diffuse) * d;
-    FragColour = vec4(result, texture(diffuse_tex, uv).a);
+    FragColour = vec4(result, texture(diffuse_texture, uv).a);
 }

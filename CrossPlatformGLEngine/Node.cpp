@@ -4,6 +4,8 @@ Node::Node()
 {
 	this->nodes = std::vector<Node>();
 	this->components = std::vector<Component>();
+	this->position = glm::vec3(0);
+	this->position = glm::vec3(0);
 }
 
 void Node::init()
@@ -30,4 +32,10 @@ void Node::update(float deltaTime)
 	{
 		this->components[i].update(deltaTime);
 	}
+}
+
+glm::mat4 Node::GetTransform()
+{
+	glm::mat4 model = glm::mat4();
+	return glm::mat4();
 }

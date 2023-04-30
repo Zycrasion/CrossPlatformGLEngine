@@ -7,6 +7,7 @@ Mesh::Mesh(float* vertices, int length, unsigned int* indices, int indices_lengt
 	this->vertices_size = this->length * sizeof(float) * 3;
 	this->uv_size = this->length * sizeof(float) * (uv_coordinates != NULL ? 2 : 0);
 	this->normals_size = this->vertices_size * (normals != NULL ? 1 : 0);
+	this->normals = normals;
 	this->uv_coordinates = uv_coordinates;
 	this->use_indices = indices != NULL;
 
@@ -15,6 +16,10 @@ Mesh::Mesh(float* vertices, int length, unsigned int* indices, int indices_lengt
 		this->indices = indices;
 		this->indices_length = indices_length;
 		this->indices_size = this->indices_length * sizeof(int);
+	}
+	else
+	{
+		this->indices = nullptr;
 	}
 
 	glGenVertexArrays(1, &this->VAO);
@@ -62,6 +67,27 @@ Mesh::Mesh(float* vertices, int length, unsigned int* indices, int indices_lengt
 	}
 }
 
+Mesh::~Mesh()
+{
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+	glDeleteVertexArrays(1, &VAO);
+
+	delete vertices;
+	if (uv_coordinates != nullptr)
+	{
+		delete uv_coordinates;
+	}
+	if (normals != nullptr)
+	{
+		delete normals;
+	}
+	if (indices != nullptr)
+	{
+		delete indices;
+	}
+}
+
 void Mesh::init()
 {
 	// Do nothing since the Mesh can only be initialised once
@@ -98,6 +124,7 @@ void Mesh::BindVBO(GLenum target)
 void Mesh::ReplaceVBOData(float* vertices)
 {
 	this->BindVBO();
+	delete this->vertices;
 	this->vertices = new float[this->length * 3];
 	memcpy(this->vertices, vertices, this->vertices_size);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, this->vertices_size, this->vertices);
